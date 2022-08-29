@@ -1,0 +1,13 @@
+room_id,status
+104,available
+204,available
+101,available
+201,available
+303,available
+102,available
+103,reserved
+202,reserved
+203,reserved
+304,occupied
+301,occupied
+302,occupied
