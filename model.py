@@ -1,14 +1,5 @@
 import csv
-
-# constants
-# Room statuses
-AVAILABLE = 'available'
-RESERVED = 'reserved'
-OCCUPIED = 'occupied'
-
-# path of file that represents external storage
-filepath = 'rooms.csv'
-
+from constants import *
 
 # lists of rooms of all statuses
 rooms = {
@@ -17,10 +8,11 @@ rooms = {
     OCCUPIED: []
 }
 
-
 # write data to external .csv file with given path
 # using for saving data
 # data format: room_id,status
+
+
 def write_file(filepath):
     # declare global rooms lists
     global rooms
@@ -72,9 +64,6 @@ def change_status(room_id, new_status):
         if room_id in rooms[AVAILABLE]:
             rooms[RESERVED].append(room_id)
             rooms[AVAILABLE].remove(room_id)
-            print('Successful Operation')
-        else:
-            print(f'Room {room_id} is not available')
 
     # Set new status to OCCUPIED
     elif new_status == OCCUPIED:
@@ -83,15 +72,11 @@ def change_status(room_id, new_status):
         if room_id in rooms[AVAILABLE]:
             rooms[OCCUPIED].append(room_id)
             rooms[AVAILABLE].remove(room_id)
-            print('Successful Operation')
         # check if the specific room is reserved rooms
         # if yes, operation is valid
         elif room_id in rooms[RESERVED]:
             rooms[OCCUPIED].append(room_id)
             rooms[RESERVED].remove(room_id)
-            print('Successful Operation')
-        else:
-            print(f'Room {room_id} is not available')
     # Set new status to AVAILABLE
     else:
         # check if the specific room is occupied rooms
@@ -99,15 +84,12 @@ def change_status(room_id, new_status):
         if room_id in rooms[OCCUPIED]:
             rooms[AVAILABLE].append(room_id)
             rooms[OCCUPIED].remove(room_id)
-            print('Successful Operation')
+
         # check if the specific room is reserved rooms
         # if yes, operation is valid
         elif room_id in rooms[RESERVED]:
             rooms[AVAILABLE].append(room_id)
             rooms[RESERVED].remove(room_id)
-            print('Successful Operation')
-        else:
-            print(f"Room {room_id} is already available")
 
 
 # This functions changes an available or reserved room with specific 'room_id'
