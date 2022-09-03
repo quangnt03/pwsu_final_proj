@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import font
+from constants import *
 import model
+import map
 
 
 # When a element in available list is selected
@@ -38,9 +40,9 @@ def occupied_select(event):
 
 # update displayed values in three room lists everytime changes occurs
 def update_value():
-    strvar_available.set(model.get_available_rooms())
-    strvar_reserved.set(model.get_reserved_rooms())
-    strvar_occupied.set(model.get_occupied_rooms())
+    strvar_available.set(sorted(model.get_available_rooms()))
+    strvar_reserved.set(sorted(model.get_reserved_rooms()))
+    strvar_occupied.set(sorted(model.get_occupied_rooms()))
 
 
 # disable all buttons and change focus to main window
@@ -59,6 +61,7 @@ def occupy():
     model.occupy(selection)
     update_value()
     set_default_states()
+    map.draw_room(tle, selection, OCCUPIED)
 
 
 # reserve a room using model utilitise and update listboxs' value
@@ -66,6 +69,7 @@ def reserve():
     model.reserve(selection)
     update_value()
     set_default_states()
+    map.draw_room(tle, selection, RESERVED)
 
 
 # make a room free using model utilitise and update listboxs' value
@@ -73,6 +77,7 @@ def free():
     model.make_available(selection)
     update_value()
     set_default_states()
+    map.draw_room(tle, selection, AVAILABLE)
 
 
 # global variables
@@ -81,7 +86,7 @@ selection = ''
 
 # title and size of main window
 title = 'BUV SUNSHINE HOTEL'
-window_size = '400x600'
+window_size = '760x600'
 
 # main window is initialized and set
 window = Tk()
@@ -89,7 +94,7 @@ window.geometry(window_size)
 window.title(title)
 
 # load data from .csv file using model utility
-model.read_file(model.filepath)
+model.read_file(FILEPATH)
 
 
 # font settings
@@ -112,6 +117,7 @@ font_lb = font.Font(
 frm_available = Frame(window)
 frm_reserved = Frame(window)
 frm_occupied = Frame(window)
+cvs_map = Canvas(window)
 
 # app title
 Label(text=title, font=font_title).pack(side=TOP, pady=(20, 0))
@@ -186,6 +192,7 @@ btn_reserve = Button(
     text='Reserve',
     command=reserve
 )
+tle = map.create_turtle(cvs_map)
 
 # this function is called to disabled all actions buttons
 # as no room is initally selected
@@ -198,6 +205,7 @@ list_occupied.bind('<ButtonRelease-1>', occupied_select)
 
 # layout settings
 
+cvs_map.pack(side=LEFT, fill='both')
 frm_available.pack(side=LEFT, padx=(25, 15))
 frm_reserved.pack(side=LEFT, padx=(10, 25))
 frm_occupied.pack(side=LEFT)
@@ -214,8 +222,15 @@ lb_occupied.pack(side=TOP)
 list_occupied.pack(side=TOP, pady=(0, 10))
 btn_occupy.pack(side=TOP)
 
+
 # main program loop
+map.init(
+    tle,
+    model.get_available_rooms(),
+    model.get_reserved_rooms(),
+    model.get_occupied_rooms()
+)
 window.mainloop()
 
 # save data to file as program is closed
-model.write_file(model.filepath)
+model.write_file(FILEPATH)
