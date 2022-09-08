@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import font
+from idlelib.tooltip import Hovertip
+
 from constants import *
 import model
 import map
@@ -40,6 +42,7 @@ def occupied_select(event):
 
 # update displayed values in three room lists everytime changes occurs
 def update_value():
+    # the order of rooms in each listbox should be set
     strvar_available.set(sorted(model.get_available_rooms()))
     strvar_reserved.set(sorted(model.get_reserved_rooms()))
     strvar_occupied.set(sorted(model.get_occupied_rooms()))
@@ -53,30 +56,46 @@ def set_default_states():
     btn_free.configure(state='disabled')
     btn_occupy.configure(state='disabled')
     btn_reserve.configure(state='disabled')
+    # set root window as the focused component
     window.focus_set()
 
 
 # occupy a room using model utilitise and update listboxs' value
 def occupy():
+    # Change the status of the room with 'model module'
     model.occupy(selection)
+    # Update the values in three listboxes, as there is a change in
+    # room status that affects the values inside listbox
     update_value()
+    # Set three operation button to disabled, as now no room is selected
     set_default_states()
+    # Redraw the graphical map
     map.draw_room(tle, selection, OCCUPIED)
 
 
 # reserve a room using model utilitise and update listboxs' value
 def reserve():
+    # Change the status of the room with 'model module'
     model.reserve(selection)
+    # Update the values in three listboxes, as there is a change in
+    # room status that affects the values inside listbox
     update_value()
+    # Set three operation button to disabled, as now no room is selected
     set_default_states()
+    # Redraw the graphical map
     map.draw_room(tle, selection, RESERVED)
 
 
 # make a room free using model utilitise and update listboxs' value
 def free():
+    # Change the status of the room with 'model module'
     model.make_available(selection)
+    # Update the values in three listboxes, as there is a change in
+    # room status that affects the values inside listbox
     update_value()
+    # Set three operation button to disabled, as now no room is selected
     set_default_states()
+    # Redraw the graphical map
     map.draw_room(tle, selection, AVAILABLE)
 
 
@@ -111,6 +130,10 @@ font_lb_header = font.Font(
 font_lb = font.Font(
     family="Arial",
     size=20
+)
+font_btn = font.Font(
+    family="Arial",
+    size=16
 )
 
 # create frames containing buttons and listboxes
@@ -170,28 +193,41 @@ list_occupied = Listbox(
 )
 
 list_reserved = Listbox(
-    frm_reserved, listvariable=strvar_reserved,
+    frm_reserved,
+    listvariable=strvar_reserved,
     width=list_width,
     height=list_height,
     font=font_lb,
 )
 
-# create buttons for actions with rooms
+# create buttons for operations with rooms
 btn_free = Button(
     frm_available,
     text='Free',
-    command=free
+    command=free,
+    font=font_btn,
+    width=7
 )
 btn_occupy = Button(
     frm_occupied,
     text='Occupy',
-    command=occupy
+    command=occupy,
+    font=font_btn,
 )
 btn_reserve = Button(
     frm_reserved,
     text='Reserve',
-    command=reserve
+    command=reserve,
+    font=font_btn
 )
+
+# hovertip to guide user about operations with selected room
+hve_free = Hovertip(btn_free, 'Click to make selected room available')
+hve_reserve = Hovertip(btn_reserve, 'Click to reserve selected room')
+hve_occupy = Hovertip(btn_occupy, 'Click to occupy selected room')
+
+# create a RawTurtle instance that integrates the hotel
+# map in the same window with other widget
 tle = map.create_turtle(cvs_map)
 
 # this function is called to disabled all actions buttons
@@ -203,8 +239,7 @@ list_available.bind('<ButtonRelease-1>', available_select)
 list_reserved.bind('<ButtonRelease-1>', reserved_select)
 list_occupied.bind('<ButtonRelease-1>', occupied_select)
 
-# layout settings
-
+# layout/geometry settings
 cvs_map.pack(side=LEFT, fill='both')
 frm_available.pack(side=LEFT, padx=(25, 15))
 frm_reserved.pack(side=LEFT, padx=(10, 25))
@@ -222,14 +257,16 @@ lb_occupied.pack(side=TOP)
 list_occupied.pack(side=TOP, pady=(0, 10))
 btn_occupy.pack(side=TOP)
 
-
-# main program loop
+# initialize a rawturtle object as the map
+# provide lists of stated rooms for drawing graphical map
 map.init(
     tle,
     model.get_available_rooms(),
     model.get_reserved_rooms(),
     model.get_occupied_rooms()
 )
+
+# main program loop
 window.mainloop()
 
 # save data to file as program is closed
